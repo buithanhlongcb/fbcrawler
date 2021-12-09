@@ -13,11 +13,8 @@ class FbBaseSpider(Spider):
 
 
     def parse(self, response):
-        questions = Selector(response).xpath('//div[@data-ft]/@data-ft').extract()
-        for question in questions:
-            jsonfile = json.loads(question)
-            if 'mf_story_key' in jsonfile:
-                id_post = jsonfile['mf_story_key']
+        id_posts = response.xpath('//div[@data-ft]/div[2]/a[2]/@href').extract()
+        for id_post in id_posts:
                 href = 'http://mbasic.facebook.com/' + id_post
                 yield response.follow(href, self.parse_comment)
 
@@ -25,7 +22,10 @@ class FbBaseSpider(Spider):
         url = response.url
         #users = response.xpath('').extract()
         #users = [remove_accent(user) for user in users]
-        comments = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/div')
+        if response.xpath('//div[@id="MPhotoContent"]') == []:
+            comments = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/div')
+        else:
+            comments = response.xpath('//div[@id="MPhotoContent"]/div[2]/div/div/div[3]/div/div')
         for comment in comments:
             user = comment.xpath('./h3/a/text()').extract()
             tags = comment.xpath('./div[1]/a/text()').extract()
@@ -36,7 +36,6 @@ class FbBaseSpider(Spider):
                 'Comment': content,
                 'Tag': tags,
             }
-        
         #comments = [re.compile(r'<[^>]+>').sub('', comment) for comment in comments]
         #comments = [remove_accent(comment) for comment in comments]
         next_id_comment = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/a/@href').extract()
