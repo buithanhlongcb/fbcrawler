@@ -14,8 +14,8 @@ class FbBaseSpider(Spider):
     
     def __init__(self):
         self.id_pages = ['us.vnuhcm']
-        self.email = "shoptipeeki@gmail.com"
-        self.password = "LazadaShopee"
+        self.email = "longlong.031.2000@gmail.com"
+        self.password = "LongLong031"
         self.flags= 0
 
 
@@ -33,17 +33,20 @@ class FbBaseSpider(Spider):
             yield response.follow(url, self.parse_page)
 
     def parse_page(self, response):
-        if self.flags == 0:
-            filename = 'home.html'
-            with open(filename, 'wb') as f:
-                f.write(response.body)
+        filename = 'home.html'
+        with open(filename, 'wb') as f:
+            f.write(response.body)
 
-        id_posts = response.xpath('//div[@data-ft]/div[2]/div[2]/a[2]/@href').extract()
+        id_posts = response.xpath('//div[@data-ft]/div[2]/div[2]/a/@href').extract()
         for id_post in id_posts:
-                href = 'http://mbasic.facebook.com/' + id_post
+                href = 'http://mbasic.facebook.com' + id_post
                 yield response.follow(href, self.parse_comment)
 
     def parse_comment(self, response):
+        filename = 'home' + str(self.flags) + '.html'
+        self.flag +=1
+        with open(filename, 'wb') as f:
+            f.write(response.body)
         url = response.url
         id_page = url[url.find('Acontent_owner_id_new.') + len('Acontent_owner_id_new.'):url.find('%', url.find('Acontent_owner_id_new.'))]
         id_post = url[url.find('mf_story_key')+len('mf_story_key.'):url.find('%')]
