@@ -27,3 +27,9 @@ Make sure that all the requirements are satisfied. You may clone this repository
 scrapy crawl fb -o hcmus1.csv
 ```
 
+
+
+```shell
+scrapy crawl post -a post_url="https://www.facebook.com/SMTOWNVietnamFC/photos/a.233526290182736/1830558797146136" -o hcmus.csv
+```
+
