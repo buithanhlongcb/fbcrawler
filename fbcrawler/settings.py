@@ -12,6 +12,7 @@ BOT_NAME = 'fbcrawler'
 SPIDER_MODULES = ['fbcrawler.spiders']
 NEWSPIDER_MODULE = 'fbcrawler.spiders'
 
+FEED_EXPORT_ENCODING = 'utf-8'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'fbcrawler (+http://www.yourdomain.com)'
