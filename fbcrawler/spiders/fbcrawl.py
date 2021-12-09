@@ -5,14 +5,40 @@ from scrapy.selector import Selector
 import re
 import json
 
+
+
 class FbBaseSpider(Spider):
     name = "fb"
     allowed_domains = ['facebook.com']
-    id_pages = ['us.vnuhcm']
-    start_urls =['https://mbasic.facebook.com/' + id_page + "/?_rdr" for id_page in id_pages]
+    start_urls = ['https://mbasic.facebook.com/login']
+    
+    def __init__(self):
+        self.id_pages = ['us.vnuhcm']
+        self.email = "shoptipeeki@gmail.com"
+        self.password = "LazadaShopee"
+        self.flags= 0
+
 
     def parse(self, response):
-        id_posts = response.xpath('//div[@data-ft]/div[2]/a[2]/@href').extract()
+        return FormRequest.from_response(
+                response,
+                formxpath='//form[contains(@action, "login")]',
+                formdata={'email': self.email,'pass': self.password},
+                callback=self.parse_home
+                )
+    
+    def parse_home(self, response):
+        urls = ['https://mbasic.facebook.com/' + id_page + "/?_rdr" for id_page in self.id_pages]
+        for url in urls:
+            yield response.follow(url, self.parse_page)
+
+    def parse_page(self, response):
+        if self.flags == 0:
+            filename = 'home.html'
+            with open(filename, 'wb') as f:
+                f.write(response.body)
+
+        id_posts = response.xpath('//div[@data-ft]/div[2]/div[2]/a[2]/@href').extract()
         for id_post in id_posts:
                 href = 'http://mbasic.facebook.com/' + id_post
                 yield response.follow(href, self.parse_comment)
