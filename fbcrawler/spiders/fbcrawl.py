@@ -42,6 +42,7 @@ class FbBaseSpider(Spider):
         next_url =''
         if next_id_comment != []:
             next_url = 'http://mbasic.facebook.com' + next_id_comment[-1]
+            yield response.follow(next_url, self.parse_comment)
 
         #yield {
         #        'Url': url,
@@ -50,7 +51,4 @@ class FbBaseSpider(Spider):
         #        'Tag': tags,
         #        'Next_url': next_url
         #    }
-
-        if next_id_comment != []:
-            yield response.follow(next_url, self.parse_comment)
-
+        
