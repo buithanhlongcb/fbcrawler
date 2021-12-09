@@ -44,7 +44,7 @@ class FbBaseSpider(Spider):
 
     def parse_comment(self, response):
         filename = 'home' + str(self.flags) + '.html'
-        self.flag +=1
+        self.flags +=1
         with open(filename, 'wb') as f:
             f.write(response.body)
         url = response.url
