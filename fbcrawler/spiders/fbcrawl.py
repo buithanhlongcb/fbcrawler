@@ -8,9 +8,8 @@ import json
 class FbBaseSpider(Spider):
     name = "fb"
     allowed_domains = ['facebook.com']
-    start_urls = ["https://mbasic.facebook.com/us.vnuhcm/?_rdr"]
-    
-
+    id_pages = ['us.vnuhcm']
+    start_urls =['https://mbasic.facebook.com/' + id_page + "/?_rdr" for id_page in id_pages]
 
     def parse(self, response):
         id_posts = response.xpath('//div[@data-ft]/div[2]/a[2]/@href').extract()
@@ -20,6 +19,8 @@ class FbBaseSpider(Spider):
 
     def parse_comment(self, response):
         url = response.url
+        id_page = url[url.find('Acontent_owner_id_new.') + len('Acontent_owner_id_new.'):url.find('%', url.find('Acontent_owner_id_new.'))]
+        id_post = url[url.find('mf_story_key')+len('mf_story_key.'):url.find('%')]
         #users = response.xpath('').extract()
         #users = [remove_accent(user) for user in users]
         if response.xpath('//div[@id="MPhotoContent"]') == []:
@@ -31,7 +32,8 @@ class FbBaseSpider(Spider):
             tags = comment.xpath('./div[1]/a/text()').extract()
             content = comment.xpath('./div[1]/text()').extract()
             yield {
-                'Url': url,
+                #'Url': url,
+                'Idpage - Idpost':id_page + " - "+id_post, 
                 'User': user,
                 'Comment': content,
                 'Tag': tags,
