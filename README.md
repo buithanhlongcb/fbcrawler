@@ -40,7 +40,7 @@ This spider will crawl comments from a post and will not need to login.
 
 
 ```shell
-scrapy crawl post -a post_url="you_post_link" -o sm.csv
+scrapy crawl post -a post_url="your_post_link" -o sm.csv
 ```
 
 However, you have to make sure that your post link will have some structure below:
