@@ -29,6 +29,7 @@ class FbBaseSpider(Spider):
             self.page_id = self.page_id.split(',')
         else:
             self.page_id = [self.page_id]
+        self.flags = 0
 
     def parse(self, response):
         return FormRequest.from_response(
@@ -41,22 +42,23 @@ class FbBaseSpider(Spider):
     def parse_home(self, response):
         urls = ['https://mbasic.facebook.com/' + id_page + "/?_rdr" for id_page in self.page_id]
         for url in urls:
-            yield response.follow(url, self.parse_page, dont_filter=True)
+            yield response.follow(url, self.parse_page)
 
     def parse_page(self, response):
         name = 'homepage'
-        save_html(response.body, name)
         id_posts = response.xpath("//*[contains(text(), 'Full Story')]/@href").extract()
         for id_post in id_posts:
             href = 'http://mbasic.facebook.com' + id_post
-            yield response.follow(href, self.parse_comment, dont_filter=True)
+            yield response.follow(href, self.parse_comment)
 
     def parse_comment(self, response):
         url = response.url
         id_page = url[url.find('Acontent_owner_id_new.') + len('Acontent_owner_id_new.'):url.find('%', url.find('Acontent_owner_id_new.'))]
         id_post = url[url.find('mf_story_key')+len('mf_story_key.'):url.find('%')]
-        #users = response.xpath('').extract()
-        #users = [remove_accent(user) for user in users]
+
+        name = "id_post" + str(self.flags)
+        self.flags+=1
+
         if response.xpath('//div[@id="MPhotoContent"]') == []:
             comments = response.xpath('//div[@id="root"]/div/div[2]/div/div[5]/div/div') 
         else:
@@ -82,15 +84,14 @@ class FbBaseSpider(Spider):
         next_id_comments = response.xpath("//*[contains(text(), 'View more comments…')]/@href").extract()
         for next_id_comment in next_id_comments:
             next_url = 'http://mbasic.facebook.com' + next_id_comment
-            yield response.follow(next_url, self.parse_comment, dont_filter=True)
+            yield response.follow(next_url, self.parse_comment)
         
     def parse_comment_rep(self, response):
         url = response.url
         id_page = url[url.find('Acontent_owner_id_new.') + len('Acontent_owner_id_new.'):url.find('%', url.find('Acontent_owner_id_new.'))]
         id_post = url[url.find('mf_story_key')+len('mf_story_key.'):url.find('%')]
         comments = response.xpath('//div[@id="root"]/div/div[3]/div/div') 
-        if len(comments) >= 10:
-            save_html(response.body, id_post)
+
         for comment in comments:
             user = comment.xpath('./h3/a/text()').extract()
             tags = comment.xpath('./div[1]/a/text()').extract()
@@ -105,4 +106,4 @@ class FbBaseSpider(Spider):
         next_id_comments = response.xpath("//*[contains(text(), 'View more comments…')]/@href").extract()
         for next_id_comment in next_id_comments:
             next_url = 'http://mbasic.facebook.com' + next_id_comment
-            yield response.follow(next_url, self.parse_comment_rep, dont_filter=True)
+            yield response.follow(next_url, self.parse_comment_rep)
