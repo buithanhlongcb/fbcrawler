@@ -10,6 +10,7 @@ class FbPostSpider(Spider):
     
     name = "post"
     allowed_domains = ['facebook.com']
+    unique_data = []
     flag = 0
     custom_settings = {
         'DUPEFILTER_CLASS' : 'scrapy.dupefilters.BaseDupeFilter'
@@ -66,13 +67,17 @@ class FbPostSpider(Spider):
                 tags = reply.xpath('./div[1]/a/text()').extract()
                 content = reply.xpath('./div[1]/text()').extract()
                 
-                yield {
-                    'User': user,
-                    'Reply to': 'None',
-                    'Comment': content,
-                    'Tag': tags,
-                }  
+                check = [user, 'None', content, tags]
+                if check not in self.unique_data:
+                    self.unique_data.append(check)
 
+                    yield {
+                        'User': user,
+                        'Reply to': 'None',
+                        'Comment': content,
+                        'Tag': tags,
+                    }  
+                
         
         next_url =''
         print('11111111111111111111', next_id_comment)
@@ -86,24 +91,32 @@ class FbPostSpider(Spider):
         root_user = root.xpath('./h3/a/text()').extract()
         content = root.xpath('./div[1]/text()').extract()
         tags = root.xpath('./div[1]/a/text()').extract()
-        yield {
-            'User': root_user,
-            'Reply to': 'None',
-            'Comment': content,
-            'Tag': tags,
-        }
+
+        check = [root_user, 'None', content, tags]
+        if check not in self.unique_data:
+            self.unique_data.append(check)
+            yield {
+                'User': root_user,
+                'Reply to': 'None',
+                'Comment': content,
+                'Tag': tags,
+            }
 
         #Parse the rest
         for reply in response.xpath('//div[contains(@id,"root")]/div/div/div[count(@id)=1 and contains("0123456789", substring(@id,1,1))]'):
             user = reply.xpath('./div/h3/a/text()').extract()
             content = reply.xpath('./div/div[1]/text()').extract()
             tags = reply.xpath('./div/div[1]/a/text()').extract()
-            yield {
-                'User': user,
-                'Reply to': root_user,
-                'Comment': content,
-                'Tag': tags,
-            }
+            
+            check = [user, root_user, content, tags]
+            if check not in self.unique_data:
+                self.unique_data.append(check)
+                yield {
+                    'User': user,
+                    'Reply to': root_user,
+                    'Comment': content,
+                    'Tag': tags,
+                }
 
         next_id_comment = response.xpath('//div[contains(@id,"comment_replies_more_1")]/a/@href').extract()
         print('222222222222222222222222', next_id_comment)
