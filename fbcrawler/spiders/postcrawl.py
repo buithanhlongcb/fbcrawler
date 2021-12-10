@@ -37,10 +37,15 @@ class FbPostSpider(Spider):
 
         if response.xpath('//div[@id="MPhotoContent"]') == []:
             comments = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/div')
+            next_id_comment = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div[contains(@id,"see_next")]/a/@href').extract()
+
         else:
             comments = response.xpath('//div[@id="MPhotoContent"]/div[2]/div/div/div[3]/div/div')
+            next_id_comment = response.xpath('//div[@id="MPhotoContent"]/div[2]/div/div/div[3]/div[contains(@id,"see_next")]/a/@href').extract()
+
 
         for reply in comments:
+    
             #Check if it was a reply or not
             reply_check = reply.xpath('./div[4]/div/div')
             
@@ -69,8 +74,6 @@ class FbPostSpider(Spider):
                 }  
 
         
-
-        next_id_comment = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div[3]/a/href').extract()
         next_url =''
         print('11111111111111111111', next_id_comment)
         if next_id_comment != []:
