@@ -23,10 +23,10 @@ Requirements: You need to have **Python 3** and the **Scrapy** framework that ca
 
 Make sure that all the requirements are satisfied. You may clone this repository and then navigate to the top folder: the first fbcrawler and then run the launch the application with:
 
-```shell
-scrapy crawl fb -o hcmus1.csv
-```
 
+```shell
+scrapy crawl fb -a page_id="us.vunhcm" -o hcmus1.csv
+```
 
 
 ```shell
