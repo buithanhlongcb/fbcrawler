@@ -80,7 +80,7 @@ class FbPostSpider(Spider):
                 
         
         next_url =''
-        print('11111111111111111111', next_id_comment)
+        #print('11111111111111111111', next_id_comment)
         if next_id_comment != []:
             next_url = 'http://mbasic.facebook.com' + next_id_comment[0]
             yield response.follow(next_url, self.parse)      
@@ -119,7 +119,7 @@ class FbPostSpider(Spider):
                 }
 
         next_id_comment = response.xpath('//div[contains(@id,"comment_replies_more_1")]/a/@href').extract()
-        print('222222222222222222222222', next_id_comment)
+        #print('222222222222222222222222', next_id_comment)
         if next_id_comment != []:
             next_url = 'http://mbasic.facebook.com' + next_id_comment[-1]
             yield response.follow(next_url, self.parse_reply) 
