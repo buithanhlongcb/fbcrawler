@@ -14,8 +14,14 @@ class FbBaseSpider(Spider):
     allowed_domains = ['facebook.com']
     start_urls = ['https://mbasic.facebook.com/login']
     
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.email = kwargs.get('email')
+        self.password = kwargs.get('password')
+        if not self.email or not self.password:
+            raise CloseSpider('Please provide email or password')
+
         self.page_id = kwargs.get('page_id')
         if not self.page_id:
             raise CloseSpider('Please provide page_id')

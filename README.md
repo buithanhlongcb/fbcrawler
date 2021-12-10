@@ -25,7 +25,7 @@ Make sure that all the requirements are satisfied. You may clone this repository
 
 
 ```shell
-scrapy crawl fb -a page_id="us.vunhcm" -o hcmus1.csv
+scrapy crawl fb -a email="your_email@gmail.com" -a password="your_password" -a page_id="us.vnuhcm" -o hcmus1.csv
 ```
 
 
