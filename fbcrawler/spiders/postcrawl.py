@@ -10,7 +10,11 @@ class FbPostSpider(Spider):
     
     name = "post"
     allowed_domains = ['facebook.com']
-    
+    flag = 0
+    custom_settings = {
+        'DUPEFILTER_CLASS' : 'scrapy.dupefilters.BaseDupeFilter'
+    }
+
     def start_requests(self):
         post_url = self.post_url
 
@@ -26,7 +30,11 @@ class FbPostSpider(Spider):
         yield scrapy.Request(url, self.parse)
 
     def parse(self, response):
-        print(response.url)
+        filename=f"home{self.flag}.html"
+        self.flag += 1
+        with open(filename, 'wb') as f:
+            f.write(response.body)
+
         if response.xpath('//div[@id="MPhotoContent"]') == []:
             comments = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/div')
         else:
@@ -35,10 +43,10 @@ class FbPostSpider(Spider):
         for reply in comments:
             #Check if it was a reply or not
             reply_check = reply.xpath('./div[4]/div/div')
-            print(reply_check)
+            
             if reply_check != []:
-                href = reply.xpath('./a/@href').extract()
-                print('aloooooooooooooooo', href)
+                href = reply_check.xpath('./a/@href').extract_first()
+                
                 reply_url = "https://mbasic.facebook.com/" + href
                 
                 yield scrapy.Request(reply_url,
@@ -48,11 +56,11 @@ class FbPostSpider(Spider):
                                     })
             else:
                 # Regular comment
-                print("alooooo")
+                
                 user = reply.xpath('./h3/a/text()').extract()
                 tags = reply.xpath('./div[1]/a/text()').extract()
                 content = reply.xpath('./div[1]/text()').extract()
-                print(user)
+                
                 yield {
                     'User': user,
                     'Reply to': 'None',
@@ -60,10 +68,13 @@ class FbPostSpider(Spider):
                     'Tag': tags,
                 }  
 
-        next_id_comment = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div/a/@href').extract()
+        
+
+        next_id_comment = response.xpath('//div[@id="root"]/div[2]/div[2]/div/div[2]/div[3]/a/href').extract()
         next_url =''
+        print('11111111111111111111', next_id_comment)
         if next_id_comment != []:
-            next_url = 'http://mbasic.facebook.com' + next_id_comment[-1]
+            next_url = 'http://mbasic.facebook.com' + next_id_comment[0]
             yield response.follow(next_url, self.parse)      
 
     def parse_reply(self, response):
@@ -90,3 +101,9 @@ class FbPostSpider(Spider):
                 'Comment': content,
                 'Tag': tags,
             }
+
+        next_id_comment = response.xpath('//div[contains(@id,"comment_replies_more_1")]/a/@href').extract()
+        print('222222222222222222222222', next_id_comment)
+        if next_id_comment != []:
+            next_url = 'http://mbasic.facebook.com' + next_id_comment[-1]
+            yield response.follow(next_url, self.parse_reply) 
